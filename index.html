@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>Web-Pong</title>
+    <style>* { padding: 0; margin: 0; } canvas { background: #eee; display: block; margin: 0 auto; }</style>
+</head>
+<body>
+
+<canvas id="myCanvas" width="480" height="320"></canvas>
+
+<script>
+    var canvas = document.getElementById("myCanvas");
+    var ctx = canvas.getContext("2d");
+    var ballRadius = 10;
+    var x = canvas.width/2;
+    var y = canvas.height-30;
+    var dx = 2;
+    var dy = -2;
+	const paddleHeight = 10;
+	const paddleWidth = 75;
+	let paddleX = (canvas.width - paddleWidth) / 2;
+	let rightPressed = false;
+	let leftPressed = false;
+	let interval = 0;
+	var lives = 3;
+
+    function drawBall() {
+        ctx.beginPath();
+        ctx.arc(x, y, ballRadius, 0, Math.PI*2);
+        ctx.fillStyle = "#0095DD";
+        ctx.fill();
+        ctx.closePath();
+    }
+	function drawPaddle() {
+	  ctx.beginPath();
+	  ctx.rect(paddleX, canvas.height - paddleHeight, paddleWidth, paddleHeight);
+	  ctx.fillStyle = "#00ff00";
+	  ctx.fill();
+	  ctx.closePath();
+	}
+	function drawPaddle2() {
+		ctx.beginPath();
+		ctx.rect(paddleX * -1 + canvas.width - paddleWidth, canvas.height + paddleHeight-330, paddleWidth, paddleHeight);
+		ctx.fillStyle = "#00ff00";
+		ctx.fill();
+		ctx.closePath();
+	}
+
+    function draw() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        drawBall();
+		drawPaddle();
+		drawPaddle2();
+		drawLives();
+        if(x + dx > canvas.width-ballRadius || x + dx < ballRadius) {
+            dx = -dx;
+        }
+        if (y + dy < ballRadius) {
+		  if (x > paddleX * -1 + canvas.width - paddleWidth && x < paddleX * -1 + canvas.width){
+				dy = -dy;
+			} else if (lives === 1) {
+				alert("GAME OVER");
+				document.location.reload();
+				clearInterval(interval);
+			} else {
+				dy = -dy;
+				lives -= 1;
+			}
+		  } else if (y + dy > canvas.height - ballRadius) {
+			  if (x > paddleX && x < paddleX + paddleWidth) {
+		    dy = -dy;
+		  } else if (lives === 1) {
+		    alert("GAME OVER");
+		    document.location.reload();
+		    clearInterval(interval);
+		} else {
+			dy = -dy;
+			lives -= 1;
+		  }
+		}
+
+        x += dx;
+        y += dy;
+		if (rightPressed) {
+		  paddleX = Math.min(paddleX + 7, canvas.width - paddleWidth);
+		} else if (leftPressed) {
+		  paddleX = Math.max(paddleX - 7, 0);
+		}
+    }
+	document.addEventListener("keydown", keyDownHandler, false);
+	document.addEventListener("keyup", keyUpHandler, false);
+	function keyDownHandler(e) {
+	  if (e.key === "Right" || e.key === "ArrowRight") {
+	    rightPressed = true;
+	  } else if (e.key === "Left" || e.key === "ArrowLeft") {
+	    leftPressed = true;
+	  }
+	}
+
+	function keyUpHandler(e) {
+	  if (e.key === "Right" || e.key === "ArrowRight") {
+	    rightPressed = false;
+	  } else if (e.key === "Left" || e.key === "ArrowLeft") {
+	    leftPressed = false;
+	  }
+	}
+	function drawLives() {
+	  ctx.font = "16px Arial";
+	  ctx.fillStyle = "#0095DD";
+	  ctx.fillText(`Lives: ${lives}`, 8, 20);
+	}
+	interval = setInterval(draw, 10);
+</script>
+
+</body>
+</html>
